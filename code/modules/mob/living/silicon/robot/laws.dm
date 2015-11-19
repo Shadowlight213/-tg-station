@@ -31,7 +31,7 @@
 			lawupdate = 0
 
 	who << "<b>Obey these laws:</b>"
-	laws.show_laws(who)
+	subsystem_law_manager()
 	if (is_special_character(src) && connected_ai)
 		who << "<b>Remember, [connected_ai.name] is technically your master, but your objective comes first.</b>"
 	else if (connected_ai)
@@ -45,30 +45,6 @@
 /mob/living/silicon/robot/proc/lawsync()
 	laws_sanity_check()
 	var/datum/ai_laws/master = connected_ai ? connected_ai.laws : null
-	var/temp
 	if (master)
-		laws.ion.len = master.ion.len
-		for (var/index = 1, index <= master.ion.len, index++)
-			temp = master.ion[index]
-			if (length(temp) > 0)
-				laws.ion[index] = temp
-
-		if (!is_special_character(src)) //Don't override the borg's existing law 0, if any
-			if(master.zeroth_borg) //If the AI has a defined law zero specifically for its borgs, give it that one, otherwise give it the same one. --NEO
-				temp = master.zeroth_borg
-			else
-				temp = master.zeroth
-			laws.zeroth = temp
-
-		laws.inherent.len = master.inherent.len
-		for (var/index = 1, index <= master.inherent.len, index++)
-			temp = master.inherent[index]
-			if (length(temp) > 0)
-				laws.inherent[index] = temp
-
-		laws.supplied.len = master.supplied.len
-		for (var/index = 1, index <= master.supplied.len, index++)
-			temp = master.supplied[index]
-			if (length(temp) > 0)
-				laws.supplied[index] = temp
+		master.sync(src)
 	return
