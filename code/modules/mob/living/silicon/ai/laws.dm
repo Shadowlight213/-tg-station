@@ -15,5 +15,7 @@
 		who = src
 	who << "<b>Obey these laws:</b>"
 
-	src.laws_sanity_check()
-	src.laws.show_laws(who)
+
+	subsystem_law_manager()
+	//src.laws_sanity_check()
+	//src.laws.show_laws(who)

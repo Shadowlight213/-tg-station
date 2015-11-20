@@ -1120,6 +1120,9 @@
 	faction = list("syndicate")
 	designation = "Syndicate Assault"
 	req_access = list(access_syndicate)
+	silicon_verbs_subsystems = list(
+		/mob/living/silicon/proc/subsystem_law_manager
+	)
 	var/playstyle_string = "<span class='userdanger'>You are a Syndicate assault cyborg!</span><br>\
 							<b>You are armed with powerful offensive tools to aid you in your mission: help the operatives secure the nuclear authentication disk. \
 							Your cyborg LMG will slowly produce ammunition from your power supply, and your operative pinpointer will find and locate fellow nuclear operatives. \

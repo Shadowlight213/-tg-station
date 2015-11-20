@@ -60,7 +60,7 @@
 			world.Reboot("No AI during Malfunction.", "end_error", "malf - no AI", 50)
 			return
 		AI_mind.current.verbs += /mob/living/silicon/ai/proc/choose_modules
-		AI_mind.current:laws = new /datum/ai_laws/malfunction
+		AI_mind.current:laws = new /datum/ai_laws/asimov/malfunction
 		AI_mind.current:malf_picker = new /datum/module_picker
 		AI_mind.current:show_laws()
 		greet_malf(AI_mind)

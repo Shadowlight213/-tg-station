@@ -23,3 +23,13 @@
 	msg += "*---------*</span>"
 
 	user << msg
+	user.showLaws(src)
+
+	return
+
+/mob/proc/showLaws(var/mob/living/silicon/S)
+	return
+
+/mob/dead/observer/showLaws(var/mob/living/silicon/S)
+	if(is_admin(src))
+		S.laws.show_laws(src)

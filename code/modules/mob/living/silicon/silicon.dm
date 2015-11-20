@@ -8,7 +8,7 @@
 	verb_exclaim = "declares"
 	verb_yell = "alarms"
 	var/syndicate = 0
-	var/datum/ai_laws/laws = null//Now... THEY ALL CAN ALL HAVE LAWS
+	//var/datum/ai_laws/laws = null//Now... THEY ALL CAN ALL HAVE LAWS
 	var/list/alarms_to_show = list()
 	var/list/alarms_to_clear = list()
 	var/designation = ""
@@ -16,14 +16,20 @@
 	var/obj/item/device/camera/siliconcam/aicamera = null //photography
 	//hud_possible = list(DIAG_STAT_HUD, DIAG_HUD, ANTAG_HUD)
 	hud_possible = list(ANTAG_HUD, DIAG_STAT_HUD, DIAG_HUD)
+	var/list/silicon_verbs_subsystems = list(
+//		/mob/living/silicon/proc/subsystem_alarm_monitor,
+		/mob/living/silicon/proc/subsystem_law_manager
+	)
+	var/obj/nano_module/alarm_monitor = null
+	var/obj/nano_module/law_manager = null
 
 	var/obj/item/device/radio/borg/radio = null //AIs dont use this but this is at the silicon level to advoid copypasta in say()
 
 	var/list/alarm_types_show = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 	var/list/alarm_types_clear = list("Motion" = 0, "Fire" = 0, "Atmosphere" = 0, "Power" = 0, "Camera" = 0)
 
-	var/lawcheck[1]
-	var/ioncheck[1]
+	//var/lawcheck[1]
+//	var/ioncheck[1]
 
 	var/med_hud = DATA_HUD_MEDICAL_ADVANCED //Determines the med hud to use
 	var/sec_hud = DATA_HUD_SECURITY_ADVANCED //Determines the sec hud to use
@@ -37,6 +43,7 @@
 	diag_hud.add_to_hud(src)
 	diag_hud_set_status()
 	diag_hud_set_health()
+	law_manager = new/obj/nano_module/law_manager(src)
 
 /mob/living/silicon/Destroy()
 	radio = null
@@ -223,9 +230,21 @@
 	return
 
 
-/mob/living/silicon/proc/statelaws()
+/mob/living/silicon/proc/statelaws(var/datum/ai_laws/laws, var/use_statement_order = 1)
 
-	//"radiomod" is inserted before a hardcoded message to change if and how it is handled by an internal radio.
+
+
+	//var/prefix = ""
+	//switch(lawchannel)
+	//	if(MAIN_CHANNEL) prefix = ";"
+	//	if("Binary") prefix = ":b "
+	//	else
+	//		prefix = get_radio_key_from_channel(lawchannel == "Holopad" ? "department" : lawchannel) + " "
+	dostatelaws(laws, use_statement_order)
+
+
+
+/*	//"radiomod" is inserted before a hardcoded message to change if and how it is handled by an internal radio.
 	src.say("[radiomod] Current Active Laws:")
 	//src.laws_sanity_check()
 	//src.laws.show_laws(world)
@@ -266,6 +285,27 @@
 					src.say("[radiomod] [number]. [law]")
 					sleep(10)
 				number++
+*/
+
+/mob/living/silicon/proc/dostatelaws(var/datum/ai_laws/laws, var/use_statement_order,var/prefix = [radiomod])
+	if(stating_laws[radiomod])
+		src << "<span class='notice'>[prefix]: Already stating laws using this communication method.</span>"
+		return
+	stating_laws[radiomod] = 1
+	var/can_state = statelaw("[radiomod]Current Active Laws:")
+	for(var/datum/ai_law/law in laws.laws_to_state())
+		can_state = statelaw("[radiomod][law.get_index(use_statement_order)]. [law.law]")
+	if(!can_state)
+		src << "<span class='danger'>[prefix]: Unable to state laws. Communication method unavailable.</span>"
+	stating_laws[radiomod] = 0
+
+
+
+/mob/living/silicon/proc/statelaw(var/law)
+	if(src.say(law))
+		sleep(10)
+		return 1
+	return 0
 
 
 /mob/living/silicon/proc/checklaws() //Gives you a link-driven interface for deciding what laws the statelaws() proc will share with the crew. --NeoFite
@@ -480,3 +520,9 @@
 	if(changed)
 		animate(src, transform = ntransform, time = 2,easing = EASE_IN|EASE_OUT)
 	return ..()
+
+/mob/living/silicon/proc/subsystem_law_manager()
+	set name = "Law Manager"
+	set category = "Subystems"
+
+	law_manager.ui_interact(usr)

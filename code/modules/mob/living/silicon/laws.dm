@@ -1,3 +1,8 @@
+/mob/living/silicon
+	var/datum/ai_laws/laws = null
+	var/list/additional_law_channels = list("State")
+
+
 /mob/living/silicon/proc/show_laws() //Redefined in ai/laws.dm and robot/laws.dm
 	return
 
@@ -10,20 +15,20 @@
 	src.laws_sanity_check()
 	src.laws.set_zeroth_law(law, law_borg)
 
-/mob/living/silicon/proc/add_inherent_law(law)
+/mob/living/silicon/proc/add_inherent_law(law, var/state_law = 1)
 	throw_alert("newlaw", /obj/screen/alert/newlaw)
 	laws_sanity_check()
-	laws.add_inherent_law(law)
+	laws.add_inherent_law(law, state_law)
 
 /mob/living/silicon/proc/clear_inherent_laws()
 	throw_alert("newlaw", /obj/screen/alert/newlaw)
 	laws_sanity_check()
 	laws.clear_inherent_laws()
 
-/mob/living/silicon/proc/add_supplied_law(number, law)
+/mob/living/silicon/proc/add_supplied_law(number, law, var/state_law = 1)
 	throw_alert("newlaw", /obj/screen/alert/newlaw)
 	laws_sanity_check()
-	laws.add_supplied_law(number, law)
+	laws.add_supplied_law(number, law, state_law)
 
 /mob/living/silicon/proc/clear_supplied_laws()
 	throw_alert("newlaw", /obj/screen/alert/newlaw)

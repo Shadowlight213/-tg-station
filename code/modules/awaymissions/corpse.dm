@@ -108,7 +108,7 @@
 	var/A = locate(/mob/living/silicon/ai) in loc //variable A looks for an AI at the location of the landmark
 	if(A) //if variable A is true
 		return //stop executing the proc
-	var/L = new /datum/ai_laws/default/asimov/ //variable L is a new Asimov lawset
+	var/L = new /datum/ai_laws/asimov/ //variable L is a new Asimov lawset
 	var/B = new /obj/item/device/mmi/ //variable B is a new MMI
 	var/mob/living/silicon/ai/M = new(src.loc, L, B, 1) //spawn new AI at landmark as var M
 	M.name = src.name

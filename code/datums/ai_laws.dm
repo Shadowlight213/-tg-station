@@ -24,12 +24,12 @@ var/global/const/base_law_type = /datum/ai_laws/asimov
 
 /datum/ai_laws
 	var/name = "Unknown Laws"
-	var/datum/ai_law/zero/zeroth_law = null
-	var/datum/ai_law/zero/zeroth_law_borg = null
-	var/list/datum/ai_law/inherent_laws = list()
-	var/list/datum/ai_law/supplied_laws = list()
-	var/list/datum/ai_law/ion/ion_laws = list()
-	var/list/datum/ai_law/sorted_laws = list()
+	var/datum/ai_law/zero/zeroth = null
+	var/datum/ai_law/zero/zeroth_borg = null
+	var/list/datum/ai_law/inherent = list()
+	var/list/datum/ai_law/supplied = list()
+	var/list/datum/ai_law/ion/ion = list()
+	var/list/datum/ai_law/sorted = list()
 	var/mob/living/silicon/owner
 
 
@@ -50,105 +50,105 @@ var/global/const/base_law_type = /datum/ai_laws/asimov
 /* General ai_law functions */
 /datum/ai_laws/proc/all_laws()
 	sort_laws()
-	return sorted_laws
+	return sorted
 
 /datum/ai_laws/proc/laws_to_state()
 	sort_laws()
 	var/list/statements = new()
-	for(var/datum/ai_law/law in sorted_laws)
+	for(var/datum/ai_law/law in sorted)
 		if(law.state_law)
 			statements += law
 
 	return statements
 
 /datum/ai_laws/proc/sort_laws()
-	if(sorted_laws.len)
+	if(sorted.len)
 		return
 
-	if(zeroth_law)
-		sorted_laws += zeroth_law
+	if(zeroth)
+		sorted += zeroth
 
-	for(var/ion_law in ion_laws)
-		sorted_laws += ion_law
+	for(var/ion_law in ion)
+		sorted += ion_law
 
 	var/index = 1
-	for(var/datum/ai_law/inherent_law in inherent_laws)
+	for(var/datum/ai_law/inherent_law in inherent)
 		inherent_law.index = index++
-		if(supplied_laws.len < inherent_law.index || !istype(supplied_laws[inherent_law.index], /datum/ai_law))
-			sorted_laws += inherent_law
+		if(supplied.len < inherent_law.index || !istype(supplied[inherent_law.index], /datum/ai_law))
+			sorted += inherent_law
 
-	for(var/datum/ai_law/AL in supplied_laws)
+	for(var/datum/ai_law/AL in supplied)
 		if(istype(AL))
-			sorted_laws += AL
+			sorted += AL
 
 /datum/ai_laws/proc/sync(var/mob/living/silicon/S, var/full_sync = 1)
-	S.sync_zeroth(zeroth_law, zeroth_law_borg)
+	S.sync_zeroth(zeroth, zeroth_borg)
 
-	if(full_sync || ion_laws.len)
+	if(full_sync || ion.len)
 		S.clear_ion_laws()
-		for (var/datum/ai_law/law in ion_laws)
+		for (var/datum/ai_law/law in ion)
 			S.laws.add_ion_law(law.law, law.state_law)
 
-	if(full_sync || inherent_laws.len)
+	if(full_sync || inherent.len)
 		S.clear_inherent_laws()
-		for (var/datum/ai_law/law in inherent_laws)
+		for (var/datum/ai_law/law in inherent)
 			S.laws.add_inherent_law(law.law, law.state_law)
 
-	if(full_sync || supplied_laws.len)
+	if(full_sync || supplied.len)
 		S.clear_supplied_laws()
-		for (var/law_number in supplied_laws)
-			var/datum/ai_law/law = supplied_laws[law_number]
+		for (var/law_number in supplied)
+			var/datum/ai_law/law = supplied[law_number]
 			S.laws.add_supplied_law(law_number, law.law, law.state_law)
 
 
-/mob/living/silicon/proc/sync_zeroth(var/datum/ai_law/zeroth_law, var/datum/ai_law/zeroth_law_borg)
+/mob/living/silicon/proc/sync_zeroth(var/datum/ai_law/zeroth, var/datum/ai_law/zeroth_borg)
 	if (!is_special_character(src) || mind.original != src)
-		if(zeroth_law_borg)
-			set_zeroth_law(zeroth_law_borg.law)
-		else if(zeroth_law)
-			set_zeroth_law(zeroth_law.law)
+		if(zeroth_borg)
+			set_zeroth_law(zeroth_borg.law)
+		else if(zeroth)
+			set_zeroth_law(zeroth_.law)
 
-/mob/living/silicon/ai/sync_zeroth(var/datum/ai_law/zeroth_law, var/datum/ai_law/zeroth_law_borg)
+/mob/living/silicon/ai/sync_zeroth(var/datum/ai_law/zeroth, var/datum/ai_law/zeroth_borg)
 	if(zeroth_law)
-		set_zeroth_law(zeroth_law.law, zeroth_law_borg ? zeroth_law_borg.law : null)
+		set_zeroth_law(zeroth.law, zeroth_borg ? zeroth_borg.law : null)
 
 
-//datum/ai_laws/proc/set_zeroth_law(var/law, var/law_borg = null)
+datum/ai_laws/proc/set_zeroth_law(var/law, var/law_borg = null)
 	if(!law)
 		return
 
-	src.zeroth_law = new(law)
+	src.zeroth = new(law)
 	if(law_borg) //Making it possible for slaved borgs to see a different law 0 than their AI. --NEO
-		src.zeroth_law_borg = new(law_borg)
-	sorted_laws.Cut()
+		src.zeroth_borg = new(law_borg)
+	sorted.Cut()
 
 /datum/ai_laws/proc/add_ion_law(var/law, var/state_law = 1)
 	if(!law)
 		return
 
-	src.ion_laws += new/datum/ai_law/ion(law, state_law)
-	sorted_laws.Cut()
+	src.ion += new/datum/ai_law/ion(law, state_law)
+	sorted.Cut()
 
 /datum/ai_laws/proc/add_inherent_law(var/law, var/state_law = 1)
 	if(!law)
 		return
 
-	for(var/datum/ai_law/AL in inherent_laws)
+	for(var/datum/ai_law/AL in inherent)
 		if(AL.law == law)
 			return
 
-	src.inherent_laws += new/datum/ai_law(law, state_law)
-	sorted_laws.Cut()
+	src.inherent += new/datum/ai_law(law, state_law)
+	sorted.Cut()
 
 /datum/ai_laws/proc/add_supplied_law(var/number, var/law, var/state_law = 1)
 	if(!law)
 		return
 
-	while (src.supplied_laws.len < number)
-		src.supplied_laws += ""
+	while (src.supplied.len < number)
+		src.supplied += ""
 
-	src.supplied_laws[number] = new/datum/ai_law(law, state_law, number)
-	sorted_laws.Cut()
+	src.supplied[number] = new/datum/ai_law(law, state_law, number)
+	sorted.Cut()
 
 /****************
 *	Remove Laws	*
@@ -156,28 +156,28 @@ var/global/const/base_law_type = /datum/ai_laws/asimov
 /datum/ai_laws/proc/delete_law(var/datum/ai_law/law)
 	if(law in all_laws())
 		del(law)
-	sorted_laws.Cut()
+	sorted.Cut()
 
 /****************
 *	Clear Laws	*
 ****************/
 /datum/ai_laws/proc/clear_zeroth_laws()
-	zeroth_law = null
-	zeroth_law_borg = null
+	zeroth = null
+	zeroth_borg = null
 
 /datum/ai_laws/proc/clear_inherent_laws()
-	src.inherent_laws.Cut()
-	sorted_laws.Cut()
+	src.inherent.Cut()
+	sorted.Cut()
 
 /datum/ai_laws/proc/clear_supplied_laws()
-	src.supplied_laws.Cut()
-	sorted_laws.Cut()
+	src.supplied.Cut()
+	sorted.Cut()
 
 /datum/ai_laws/proc/clear_ion_laws()
-	src.ion_laws.Cut()
-	sorted_laws.Cut()
+	src.ion.Cut()
+	sorted.Cut()
 
 /datum/ai_laws/proc/show_laws(var/who)
 	sort_laws()
-	for(var/datum/ai_law/law in sorted_laws)
+	for(var/datum/ai_law/law in sorted)
 		who << "[law.get_index()]. [law.law]"
