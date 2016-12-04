@@ -27,9 +27,9 @@ var/hsboxspawn = 1
 	var/hsbinfo = null
 	//items that shouldn't spawn on the floor because they would bug or act weird
 	var/global/list/spawn_forbidden = list(
-		/obj/item/weapon/grab, /obj/item/tk_grab, /obj/item/weapon/implant, // not implanter, the actual thing that is inside you
+		/obj/item/tk_grab, /obj/item/weapon/implant, // not implanter, the actual thing that is inside you
 		/obj/item/assembly,/obj/item/device/onetankbomb, /obj/item/radio, /obj/item/device/pda/ai,
-		/obj/item/device/uplink/hidden, /obj/item/smallDelivery, /obj/item/missile,/obj/item/projectile,
+		/obj/item/device/uplink, /obj/item/smallDelivery, /obj/item/missile,/obj/item/projectile,
 		/obj/item/borg/sight,/obj/item/borg/stun,/obj/item/weapon/robot_module)
 
 /datum/hSB/proc/update()
@@ -65,9 +65,9 @@ var/hsboxspawn = 1
 			"Spawn Water Tank"					= "hsbspawn&path=[/obj/structure/reagent_dispensers/watertank]",
 
 			"Bots",
-			"Spawn Cleanbot"					= "hsbspawn&path=[/obj/machinery/bot/cleanbot]",
-			"Spawn Floorbot"					= "hsbspawn&path=[/obj/machinery/bot/floorbot]",
-			"Spawn Medbot"						= "hsbspawn&path=[/obj/machinery/bot/medbot]",
+			"Spawn Cleanbot"					= "hsbspawn&path=[/mob/living/simple_animal/bot/cleanbot]",
+			"Spawn Floorbot"					= "hsbspawn&path=[/mob/living/simple_animal/bot/floorbot]",
+			"Spawn Medbot"						= "hsbspawn&path=[/mob/living/simple_animal/bot/medbot]",
 
 			"Canisters",
 			"Spawn O2 Canister" 				= "hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/oxygen]",
@@ -84,7 +84,7 @@ var/hsboxspawn = 1
 			hsbinfo += "- <a href='?src=\ref[src];hsb=hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/toxins]'>Spawn Plasma Canister</a><br>"
 			hsbinfo += "- <a href='?src=\ref[src];hsb=hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/carbon_dioxide]'>Spawn CO2 Canister</a><br>"
 			hsbinfo += "- <a href='?src=\ref[src];hsb=hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/nitrogen]'>Spawn Nitrogen Canister</a><br>"
-			hsbinfo += "- <a href='?src=\ref[src];hsb=hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/sleeping_agent]'>Spawn N2O Canister</a><hr>"
+			hsbinfo += "- <a href='?src=\ref[src];hsb=hsbspawn&path=[/obj/machinery/portable_atmospherics/canister/nitrous_oxide]'>Spawn N2O Canister</a><hr>"
 		else
 			hsbinfo += "<i>Some item spawning may be disabled by the administrators.</i><br>"
 			hsbinfo += "<i>Only administrators may spawn dangerous canisters.</i><br>"
@@ -143,34 +143,41 @@ var/hsboxspawn = 1
 				if(P.wear_suit)
 					P.wear_suit.loc = P.loc
 					P.wear_suit.layer = initial(P.wear_suit.layer)
+					P.wear_suit.plane = initial(P.wear_suit.plane)
 					P.wear_suit = null
 				P.wear_suit = new/obj/item/clothing/suit/space(P)
-				P.wear_suit.layer = 20
+				P.wear_suit.layer = ABOVE_HUD_LAYER
+				P.wear_suit.plane = ABOVE_HUD_PLANE
 				P.update_inv_wear_suit()
 				if(P.head)
 					P.head.loc = P.loc
 					P.head.layer = initial(P.head.layer)
+					P.head.plane = initial(P.head.plane)
 					P.head = null
 				P.head = new/obj/item/clothing/head/helmet/space(P)
-				P.head.layer = 20
+				P.head.layer = ABOVE_HUD_LAYER
+				P.head.plane = ABOVE_HUD_PLANE
 				P.update_inv_head()
 				if(P.wear_mask)
 					P.wear_mask.loc = P.loc
 					P.wear_mask.layer = initial(P.wear_mask.layer)
+					P.wear_mask.plane = initial(P.wear_mask.plane)
 					P.wear_mask = null
 				P.wear_mask = new/obj/item/clothing/mask/gas(P)
-				P.wear_mask.layer = 20
+				P.wear_mask.layer = ABOVE_HUD_LAYER
+				P.wear_mask.plane = ABOVE_HUD_PLANE
 				P.update_inv_wear_mask()
 				if(P.back)
 					P.back.loc = P.loc
 					P.back.layer = initial(P.back.layer)
+					P.back.plane = initial(P.back.plane)
 					P.back = null
 				P.back = new/obj/item/weapon/tank/jetpack/oxygen(P)
-				P.back.layer = 20
+				P.back.layer = ABOVE_HUD_LAYER
+				P.back.plane = ABOVE_HUD_PLANE
 				P.update_inv_back()
 				P.internal = P.back
-				if(P.internals)
-					P.internals.icon_state = "internal1"
+				P.update_internals_hud_icon(1)
 
 			if("hsbscrubber") // This is beyond its normal capability but this is sandbox and you spawned one, I assume you need it
 				var/obj/hsb = new/obj/machinery/portable_atmospherics/scrubber{volume_rate=50*ONE_ATMOSPHERE;on=1}(usr.loc)

@@ -9,6 +9,7 @@
 	var/shoes = null
 	var/head = null
 	var/mask = null
+	var/neck = null
 	var/ears = null
 	var/glasses = null
 	var/id = null
@@ -19,16 +20,16 @@
 	var/l_hand = null
 	var/list/backpack_contents = list() // In the list(path=count,otherpath=count) format
 
-/datum/outfit/proc/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/proc/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	//to be overriden for customization depending on client prefs,species etc
 	return
 
-/datum/outfit/proc/post_equip(mob/living/carbon/human/H)
+/datum/outfit/proc/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	//to be overriden for toggling internals, id binding, access etc
 	return
 
-/datum/outfit/proc/equip(mob/living/carbon/human/H)
-	pre_equip(H)
+/datum/outfit/proc/equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	pre_equip(H, visualsOnly)
 
 	//Start with uniform,suit,backpack for additional slots
 	if(uniform)
@@ -47,6 +48,8 @@
 		H.equip_to_slot_or_del(new head(H),slot_head)
 	if(mask)
 		H.equip_to_slot_or_del(new mask(H),slot_wear_mask)
+	if(neck)
+		H.equip_to_slot_or_del(new neck(H),slot_neck)
 	if(ears)
 		H.equip_to_slot_or_del(new ears(H),slot_ears)
 	if(glasses)
@@ -70,6 +73,7 @@
 		for(var/i=0,i<number,i++)
 			H.equip_to_slot_or_del(new path(H),slot_in_backpack)
 
-	post_equip(H)
+	post_equip(H, visualsOnly)
 
+	H.update_body()
 	return 1

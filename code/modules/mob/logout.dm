@@ -1,6 +1,8 @@
 /mob/Logout()
-	SSnano.user_logout(src) // this is used to clean up (remove) this user's Nano UIs
+	SStgui.on_logout(src)
+	unset_machine()
 	player_list -= src
+	current_watchlist -= ckey
 	log_access("Logout: [key_name(src)]")
 	if(admin_datums[src.ckey])
 		if (ticker && ticker.current_state == GAME_STATE_PLAYING) //Only report this stuff if we are currently playing.

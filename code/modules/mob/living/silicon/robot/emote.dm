@@ -5,11 +5,10 @@
 		param = copytext(act, t1 + 1, length(act) + 1)
 		act = copytext(act, 1, t1)
 
-
 	switch(act)//01000001011011000111000001101000011000010110001001100101011101000110100101111010011001010110010000100001 (Seriously please keep it that way.)
 		if ("aflap")
 			if (!src.restrained())
-				message = "<B>[src]</B> flaps \his wings ANGRILY!"
+				message = "<B>[src]</B> flaps [p_their()] wings ANGRILY!"
 				m_type = 2
 			m_type = 1
 
@@ -68,6 +67,10 @@
 			playsound(loc, 'sound/machines/buzz-two.ogg', 50, 0)
 			m_type = 2
 
+		if ("boop","boops")
+			message = "<B>[src]</B> boops."
+			m_type = 2
+
 		if ("chime","chimes") //You have mail!
 			message = "<B>[src]</B> chimes."
 			playsound(loc, 'sound/machines/chime.ogg', 50, 0)
@@ -105,7 +108,7 @@
 
 		if ("flap","flaps")
 			if (!src.restrained())
-				message = "<B>[src]</B> flaps \his wings."
+				message = "<B>[src]</B> flaps [p_their()] wings."
 				m_type = 2
 
 		if ("glare","glares")
@@ -233,10 +236,22 @@
 		else
 			src << "<span class='notice'>Unusable emote '[act]'. Say *help for a list.</span>"
 
-	if (message && src.stat == CONSCIOUS)
+	if (message && stat == CONSCIOUS)
 		log_emote("[name]/[key] : [message]")
 		if (m_type & 1)
 			visible_message(message)
 		else
 			audible_message(message)
 	return
+
+/mob/living/silicon/robot/verb/powerwarn()
+	set category = "Robot Commands"
+	set name = "Power Warning"
+
+	if(stat == CONSCIOUS)
+		if(!cell || !cell.charge)
+			visible_message("The power warning light on <span class='name'>[src]</span> flashes urgently.",\
+							"You announce you are operating in low power mode.")
+			playsound(loc, 'sound/machines/buzz-two.ogg', 50, 0)
+		else
+			src << "<span class='warning'>You can only use this emote when you're out of charge.</span>"

@@ -12,21 +12,21 @@ var/list/admin_datums = list()
 	var/datum/newscaster/feed_message/admincaster_feed_message = new /datum/newscaster/feed_message
 	var/datum/newscaster/wanted_message/admincaster_wanted_message = new /datum/newscaster/wanted_message
 	var/datum/newscaster/feed_channel/admincaster_feed_channel = new /datum/newscaster/feed_channel
-	var/admincaster_signature
+	var/admin_signature
 
 /datum/admins/New(datum/admin_rank/R, ckey)
 	if(!ckey)
-		spawn(-1)
+		spawn(0)
 			del(src)
 		throw EXCEPTION("Admin datum created without a ckey")
 		return
 	if(!istype(R))
-		spawn(-1)
+		spawn(0)
 			del(src)
 		throw EXCEPTION("Admin datum created without a rank")
 		return
 	rank = R
-	admincaster_signature = "Nanotrasen Officer #[rand(0,9)][rand(0,9)][rand(0,9)]"
+	admin_signature = "Nanotrasen Officer #[rand(0,9)][rand(0,9)][rand(0,9)]"
 	admin_datums[ckey] = src
 
 /datum/admins/proc/associate(client/C)
@@ -56,13 +56,16 @@ var/list/admin_datums = list()
 			return 1 //we have all the rights they have and more
 	return 0
 
+/datum/admins/vv_edit_var(var_name, var_value)
+	return FALSE //nice try trialmin
+
 /*
 checks if usr is an admin with at least ONE of the flags in rights_required. (Note, they don't need all the flags)
 if rights_required == 0, then it simply checks if they are an admin.
 if it doesn't return 1 and show_msg=1 it will prints a message explaining why the check has failed
 generally it would be used like so:
 
-proc/admin_proc()
+/proc/admin_proc()
 	if(!check_rights(R_ADMIN)) return
 	world << "you have enough rights!"
 
@@ -86,13 +89,6 @@ you will have to do something like if(client.rights & R_ADMIN) yourself.
 				return 1
 			return usr.client.holder.check_if_greater_rights_than_holder(other.holder)
 	return 0
-
-/client/proc/deadmin()
-	admin_datums -= ckey
-	if(holder)
-		holder.disassociate()
-		del(holder)
-	return 1
 
 //This proc checks whether subject has at least ONE of the rights specified in rights_required.
 /proc/check_rights_for(client/subject, rights_required)

@@ -7,11 +7,11 @@
 	cure_chance = 100
 	agent = "Rincewindus Vulgaris"
 	viable_mobtypes = list(/mob/living/carbon/human)
-	disease_flags = CAN_CARRY|CAN_RESIST
+	disease_flags = CAN_CARRY|CAN_RESIST|CURABLE
 	permeability_mod = 0.75
 	desc = "Some speculate, that this virus is the cause of Wizard Federation existance. Subjects affected show the signs of mental retardation, yelling obscure sentences or total gibberish. On late stages subjects sometime express the feelings of inner power, and, cite, 'the ability to control the forces of cosmos themselves!' A gulp of strong, manly spirits usually reverts them to normal, humanlike, condition."
 	severity = HARMFUL
-	required_organs = list(/obj/item/organ/limb/head)
+	required_organs = list(/obj/item/bodypart/head)
 
 /*
 BIRUZ BENNAR
@@ -55,7 +55,7 @@ STI KALY - blind
 
 
 /datum/disease/wizarditis/proc/spawn_wizard_clothes(chance = 0)
-	if(istype(affected_mob, /mob/living/carbon/human))
+	if(ishuman(affected_mob))
 		var/mob/living/carbon/human/H = affected_mob
 		if(prob(chance))
 			if(!istype(H.head, /obj/item/clothing/head/wizard))
@@ -78,19 +78,15 @@ STI KALY - blind
 	else
 		var/mob/living/carbon/H = affected_mob
 		if(prob(chance))
-			if(!istype(H.r_hand, /obj/item/weapon/staff))
-				H.drop_r_hand()
-				H.put_in_r_hand( new /obj/item/weapon/staff(H) )
-			return
-	return
-
+			var/obj/item/weapon/staff/S = new(H)
+			if(!H.put_in_hands(S))
+				qdel(S)
 
 
 /datum/disease/wizarditis/proc/teleport()
-	var/list/theareas = list()
-	for(var/area/AR in ultra_range(80, affected_mob, 1))
-		if(theareas.Find(AR) || istype(AR,/area/space)) continue
-		theareas += AR
+	var/list/theareas = get_areas_in_range(80, affected_mob)
+	for(var/area/space/S in theareas)
+		theareas -= S
 
 	if(!theareas||!theareas.len)
 		return

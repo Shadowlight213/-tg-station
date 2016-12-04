@@ -5,7 +5,8 @@
 	name = "plasmaman suit"
 	desc = "A special containment suit designed to protect a plasmaman's volatile body from outside exposure and quickly extinguish it in emergencies."
 	allowed = list(/obj/item/weapon/gun,/obj/item/ammo_casing,/obj/item/ammo_casing,/obj/item/weapon/melee/baton,/obj/item/weapon/melee/energy/sword,/obj/item/weapon/restraints/handcuffs,/obj/item/weapon/tank)
-	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 100, rad = 0)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 100, rad = 0, fire = 100, acid = 75)
+	resistance_flags = FIRE_PROOF
 	icon_state = "plasmaman_suit"
 	item_state = "plasmaman_suit"
 	var/next_extinguish = 0
@@ -34,14 +35,14 @@
 
 
 //I just want the light feature of the hardsuit helmet
-/obj/item/clothing/head/helmet/plasmaman
+/obj/item/clothing/head/helmet/space/plasmaman
 	name = "plasmaman helmet"
 	desc = "A special containment helmet designed to protect a plasmaman's volatile body from outside exposure and quickly extinguish it in emergencies."
 	icon_state = "plasmaman-helm"
 	item_color = "plasma" //needed for the helmet lighting
 	item_state = "plasmaman-helm"
-	flags = BLOCKHAIR | STOPSPRESSUREDMAGE | THICKMATERIAL
 	strip_delay = 80
-	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES
-	flags_cover = HEADCOVERSEYES | HEADCOVERSMOUTH
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 100, rad = 0, fire = 100, acid = 75)
+	resistance_flags = FIRE_PROOF
+
 

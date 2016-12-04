@@ -6,9 +6,10 @@
 /mob/camera/aiEye
 	name = "Inactive AI Eye"
 
+	invisibility = INVISIBILITY_MAXIMUM
 	var/list/visibleCameraChunks = list()
 	var/mob/living/silicon/ai/ai = null
-
+	var/relay_speech = FALSE
 
 // Use this when setting the aiEye's location.
 // It will also stream the chunk that the new loc is in.
@@ -24,8 +25,8 @@
 		if(ai.client)
 			ai.client.eye = src
 		//Holopad
-		if(istype(ai.current, /obj/machinery/hologram/holopad))
-			var/obj/machinery/hologram/holopad/H = ai.current
+		if(istype(ai.current, /obj/machinery/holopad))
+			var/obj/machinery/holopad/H = ai.current
 			H.move_hologram(ai)
 
 /mob/camera/aiEye/Move()
@@ -41,7 +42,7 @@
 	return ..()
 
 /atom/proc/move_camera_by_click()
-	if(istype(usr, /mob/living/silicon/ai))
+	if(isAI(usr))
 		var/mob/living/silicon/ai/AI = usr
 		if(AI.eyeobj && AI.client.eye == AI.eyeobj)
 			AI.cameraFollow = null
@@ -75,9 +76,8 @@
 
 	//user.unset_machine() //Uncomment this if it causes problems.
 	//user.lightNearbyCamera()
-	if (user.camera_light_on)
+	if(user.camera_light_on)
 		user.light_cameras()
-
 
 // Return to the Core.
 /mob/living/silicon/ai/proc/view_core()
@@ -86,13 +86,11 @@
 	cameraFollow = null
 	unset_machine()
 
-	if(src.eyeobj && src.loc)
-		src.eyeobj.loc = src.loc
-	else
+	if(!eyeobj || !eyeobj.loc || qdeleted(eyeobj))
 		src << "ERROR: Eyeobj not found. Creating new eye..."
-		src.eyeobj = new(src.loc)
-		src.eyeobj.ai = src
-		src.eyeobj.name = "[src.name] (AI Eye)" // Give it a name
+		eyeobj = new(loc)
+		eyeobj.ai = src
+		eyeobj.name = "[src.name] (AI Eye)" // Give it a name
 
 	eyeobj.setLoc(loc)
 
@@ -104,3 +102,7 @@
 		return //won't work if dead
 	acceleration = !acceleration
 	usr << "Camera acceleration has been toggled [acceleration ? "on" : "off"]."
+
+/mob/camera/aiEye/Hear(message, atom/movable/speaker, message_langs, raw_message, radio_freq, list/spans)
+	if(relay_speech && speaker && ai && !radio_freq && speaker != ai && near_camera(speaker))
+		ai.relay_speech(message, speaker, message_langs, raw_message, radio_freq, spans)

@@ -4,6 +4,7 @@
 	icon_state = "faithless"
 	icon_living = "faithless"
 	icon_dead = "faithless_dead"
+	gender = MALE
 	speak_chance = 0
 	turns_per_move = 5
 	response_help = "passes through"
@@ -14,8 +15,11 @@
 	speed = 0
 	maxHealth = 80
 	health = 80
+	stat_attack = 1
+	robust_searching = 1
 
 	harm_intent_damage = 10
+	obj_damage = 50
 	melee_damage_lower = 15
 	melee_damage_upper = 15
 	attacktext = "grips"

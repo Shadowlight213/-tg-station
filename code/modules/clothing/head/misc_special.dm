@@ -5,7 +5,7 @@
  *		Ushanka
  *		Pumpkin head
  *		Kitty ears
- *
+ *		Cardborg disguise
  */
 
 /*
@@ -21,11 +21,12 @@
 //	var/up = 0
 	flash_protect = 2
 	tint = 2
-	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0, fire = 100, acid = 60)
 	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE
-	action_button_name = "Toggle Welding Helmet"
+	actions_types = list(/datum/action/item_action/toggle)
 	visor_flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE
-	burn_state = -1 //Won't burn in fires
+	visor_flags_cover = HEADCOVERSEYES | HEADCOVERSMOUTH
+	resistance_flags = FIRE_PROOF
 
 /obj/item/clothing/head/welding/attack_self()
 	toggle()
@@ -42,48 +43,47 @@
 /*
  * Cakehat
  */
-/obj/item/clothing/head/cakehat
-	name = "cake-hat"
-	desc = "It's tasty looking!"
-	icon_state = "cake0"
+/obj/item/clothing/head/hardhat/cakehat
+	name = "cakehat"
+	desc = "You put the cake on your head. Brilliant."
+	icon_state = "hardhat0_cakehat"
+	item_state = "hardhat0_cakehat"
+	item_color = "cakehat"
+	hitsound = 'sound/weapons/tap.ogg'
+	flags_inv = HIDEEARS|HIDEHAIR
+	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0, fire = 0, acid = 0)
+	brightness_on = 2 //luminosity when on
 	flags_cover = HEADCOVERSEYES
-	var/onfire = 0
-	var/brightness_on = 1 // luminosity when lit
-	var/status = 0
-	var/fire_resist = T0C+1300	//this is the max temp it can stand before you start to cook. although it might not burn away, you take damage
-	var/processing = 0 //I dont think this is used anywhere.
+	heat = 1000
 
-/obj/item/clothing/head/cakehat/process()
-	if(!onfire)
-		SSobj.processing.Remove(src)
-		return
-
+/obj/item/clothing/head/hardhat/cakehat/process()
 	var/turf/location = src.loc
 	if(istype(location, /mob/))
 		var/mob/living/carbon/human/M = location
-		if(M.l_hand == src || M.r_hand == src || M.head == src)
+		if(M.is_holding(src) || M.head == src)
 			location = M.loc
 
-	if (istype(location, /turf))
+	if(isturf(location))
 		location.hotspot_expose(700, 1)
 
-/obj/item/clothing/head/cakehat/attack_self(mob/user)
-	if(status > 1)	return
-	src.onfire = !( src.onfire )
-	if (src.onfire)
-		src.force = 15
-		src.AddLuminosity(brightness_on)
-		src.damtype = "fire"
-		src.icon_state = "cake1"
-		SSobj.processing |= src
-	else
-		src.force = null
-		src.AddLuminosity(-brightness_on)
-		src.damtype = "brute"
-		src.icon_state = "cake0"
-	return
+/obj/item/clothing/head/hardhat/cakehat/turn_on()
+	..()
+	force = 15
+	throwforce = 15
+	damtype = BURN
+	hitsound = 'sound/items/Welder.ogg'
+	START_PROCESSING(SSobj, src)
 
+/obj/item/clothing/head/hardhat/cakehat/turn_off()
+	..()
+	force = 0
+	throwforce = 0
+	damtype = BRUTE
+	hitsound = 'sound/weapons/tap.ogg'
+	STOP_PROCESSING(SSobj, src)
 
+/obj/item/clothing/head/hardhat/cakehat/is_hot()
+	return on * heat
 /*
  * Ushanka
  */
@@ -92,10 +92,12 @@
 	desc = "Perfect for winter in Siberia, da?"
 	icon_state = "ushankadown"
 	item_state = "ushankadown"
-	flags_inv = HIDEEARS
+	flags_inv = HIDEEARS|HIDEHAIR
 	var/earflaps = 1
 	cold_protection = HEAD
 	min_cold_protection_temperature = FIRE_HELM_MIN_TEMP_PROTECT
+
+	dog_fashion = /datum/dog_fashion/head/ushanka
 
 /obj/item/clothing/head/ushanka/attack_self(mob/user)
 	if(earflaps)
@@ -118,10 +120,8 @@
 	icon_state = "hardhat0_pumpkin"
 	item_state = "hardhat0_pumpkin"
 	item_color = "pumpkin"
-	flags = BLOCKHAIR
-	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE
-	action_button_name = "Toggle Pumpkin Light"
-	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR
+	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0, fire = 0, acid = 0)
 	brightness_on = 2 //luminosity when on
 	flags_cover = HEADCOVERSEYES
 
@@ -132,7 +132,9 @@
 	name = "kitty ears"
 	desc = "A pair of kitty ears. Meow!"
 	icon_state = "kitty"
-	color = "#999"
+	color = "#999999"
+
+	dog_fashion = /datum/dog_fashion/head/kitty
 
 /obj/item/clothing/head/kitty/equipped(mob/user, slot)
 	if(user && slot == slot_head)
@@ -141,7 +143,7 @@
 
 /obj/item/clothing/head/kitty/update_icon(mob/living/carbon/human/user)
 	if(istype(user))
-		color = "#[user.hair_color]"
+		add_atom_colour("#[user.hair_color]", FIXED_COLOUR_PRIORITY)
 
 
 /obj/item/clothing/head/hardhat/reindeer
@@ -151,6 +153,29 @@
 	item_state = "hardhat0_reindeer"
 	item_color = "reindeer"
 	flags_inv = 0
-	action_button_name = "Toggle Nose Light"
-	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0, fire = 0, acid = 0)
 	brightness_on = 1 //luminosity when on
+
+	dog_fashion = /datum/dog_fashion/head/reindeer
+
+/obj/item/clothing/head/cardborg
+	name = "cardborg helmet"
+	desc = "A helmet made out of a box."
+	icon_state = "cardborg_h"
+	item_state = "cardborg_h"
+	flags_cover = HEADCOVERSEYES
+	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR
+
+	dog_fashion = /datum/dog_fashion/head/cardborg
+
+/obj/item/clothing/head/cardborg/equipped(mob/living/user, slot)
+	..()
+	if(ishuman(user) && slot == slot_head)
+		var/mob/living/carbon/human/H = user
+		if(istype(H.wear_suit, /obj/item/clothing/suit/cardborg))
+			var/obj/item/clothing/suit/cardborg/CB = H.wear_suit
+			CB.disguise(user, src)
+
+/obj/item/clothing/head/cardborg/dropped(mob/living/user)
+	..()
+	user.remove_alt_appearance("standard_borg_disguise")
