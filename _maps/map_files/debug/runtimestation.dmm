@@ -246,7 +246,7 @@
 "eL" = (/obj/machinery/atmospherics/pipe/simple/yellow/visible,/turf/open/floor/plating,/area/construction)
 "eM" = (/obj/structure/cable{d1 = 2; d2 = 4; icon_state = "2-4"},/turf/open/floor/plating,/area/construction)
 "eN" = (/obj/machinery/atmospherics/components/binary/circulator,/turf/open/floor/plating,/area/construction)
-"eO" = (/obj/machinery/power/generator,/obj/structure/cable,/turf/open/floor/plating,/area/construction)
+"eO" = (/obj/machinery/power/generator{cold_dir = 4; hot_dir = 8},/obj/structure/cable,/turf/open/floor/plating,/area/construction)
 "eP" = (/obj/machinery/atmospherics/pipe/simple/general/visible,/obj/effect/light_emitter,/turf/open/floor/plating,/area/construction)
 "eQ" = (/obj/effect/light_emitter,/turf/open/floor/plating,/area/construction)
 "eR" = (/obj/machinery/atmospherics/pipe/simple/yellow/visible{icon_state = "intact"; dir = 5},/turf/open/floor/plating,/area/construction)
